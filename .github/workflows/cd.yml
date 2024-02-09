@@ -7,13 +7,13 @@ name: 🚀 Deploy to gestionnairedestock.clementprevost.fr
 
 jobs:
   web-deploy:
-    name: 🎉 Deploy start
+    name: Starting PHPUNIT test
     runs-on: ubuntu-latest
     environment: FTP
 
     steps:
       - name: 🚚 Get latest code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Composer update
         uses: php-actions/composer@v6
