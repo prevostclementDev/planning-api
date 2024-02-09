@@ -1,5 +1,10 @@
-on: push
+on:
+  push:
+    branch:
+      - develop
+
 name: 🚀 Deploy to gestionnairedestock.clementprevost.fr
+
 jobs:
   web-deploy:
     name: 🎉 Deploy start
