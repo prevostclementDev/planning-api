@@ -35,8 +35,10 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 
-      - name: Deploy to the server
+      - name: Repo file checkout
         uses: actions/checkout@v4
+
+      - name: Deploy to the server
         run: |
           echo "Starting deployment..."
           echo "Copy : ${{ github.workspace }}"
