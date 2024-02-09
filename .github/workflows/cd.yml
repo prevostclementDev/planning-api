@@ -3,13 +3,12 @@ on:
     branch:
       - develop
 
-name: 🚀 Deploy to gestionnairedestock.clementprevost.fr
+name: 🚀 Deploy with test
 
 jobs:
   web-deploy:
     name: Starting PHPUNIT test
     runs-on: ubuntu-latest
-    environment: FTP
 
     steps:
       - name: 🚚 Get latest code
@@ -23,3 +22,6 @@ jobs:
 
       - name: Phpunit start
         uses: php-actions/phpunit@v3
+        with:
+          version: "10.0.0"
+          php_version: "8.1"
