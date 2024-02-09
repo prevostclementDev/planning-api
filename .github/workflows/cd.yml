@@ -1,0 +1,20 @@
+on: push
+name: 🚀 Deploy to gestionnairedestock.clementprevost.fr
+jobs:
+  web-deploy:
+    name: 🎉 Deploy start
+    runs-on: ubuntu-latest
+    environment: FTP
+
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v3
+
+      - name: Composer update
+        uses: php-actions/composer@v6
+        with:
+          dev: no
+          args: --profile --ignore-platform-reqs
+
+      - name: Phpunit start
+        uses: php-actions/phpunit@v3
