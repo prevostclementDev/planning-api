@@ -25,3 +25,4 @@ jobs:
         with:
           version: "10.0.0"
           php_version: "8.1"
+          configuration: "deployphpunit.xml.dist"
