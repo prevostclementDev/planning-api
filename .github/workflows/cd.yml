@@ -42,12 +42,11 @@ jobs:
         run: |
           echo "Starting deployment..."
           
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo 'copy'"
           scp -r ${{ github.workspace }}/* ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.WORK_DIR }}
-          cd ${{ secrets.WORK_DIR }}
-          composer install
-          composer update
-          
+            
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && composer install && composer update"
+        
           echo "Deployment completed."
 
       - name: clean
