@@ -41,9 +41,13 @@ jobs:
       - name: Deploy to the server
         run: |
           echo "Starting deployment..."
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "echo 'test'"
+          
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
           scp -r ${{ github.workspace }}/* ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.WORK_DIR }}
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} " cd ${{ secrets.WORK_DIR }} && composer install && composer update"
+          cd ${{ secrets.WORK_DIR }}
+          composer install
+          composer update
+          
           echo "Deployment completed."
 
       - name: clean
