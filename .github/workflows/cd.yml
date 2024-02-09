@@ -41,7 +41,7 @@ jobs:
       - name: Deploy to the server
         run: |
           echo "Starting deployment..."
-          echo "Copy : ${{ github.workspace }}"
+          echo "Copy content of : ${{ github.workspace }}"
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "mkdir test"
           scp -r ${{ github.workspace }} ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.WORK_DIR }}
           echo "Deployment completed."
