@@ -46,7 +46,7 @@ jobs:
           
           scp -r ${{ github.workspace }}/* ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.WORK_DIR }}
             
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && composer update"
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "chmod a+rwx /var/www/html/writable/cache && cd ${{ secrets.WORK_DIR }} && composer update"
         
           echo "Deployment completed."
 
