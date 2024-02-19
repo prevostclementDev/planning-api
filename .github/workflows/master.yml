@@ -46,7 +46,7 @@ jobs:
           
           rsync -a -v --delete --exclude='.env' ${{ github.workspace }}/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.WORK_DIR }}
             
-          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "cd ${{ secrets.WORK_DIR }} && composer update"
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "chmod -R 777 ${{ secrets.WORK_DIR }} && cd ${{ secrets.WORK_DIR }} && composer update"
         
           echo "Deployment completed."
 
