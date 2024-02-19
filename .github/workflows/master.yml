@@ -1,7 +1,7 @@
 on:
   push:
     branch:
-      - develop
+      - master
 
 name: 🚀 Deploy with test
 

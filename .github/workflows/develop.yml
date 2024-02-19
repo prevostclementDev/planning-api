@@ -1,0 +1,24 @@
+on:
+  push:
+    branch:
+      - develop
+
+name: Test application
+
+jobs:
+  phpunit-test:
+    name: Starting PHPUNIT test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
+
+      - name: Composer update
+        uses: php-actions/composer@v6
+        with:
+          dev: no
+          args: --profile --ignore-platform-reqs
+
+      - name: Phpunit start
+        run : composer test
