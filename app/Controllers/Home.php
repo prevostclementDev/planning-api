@@ -14,7 +14,7 @@ class Home extends BaseController
 
         var_dump($user->findAll());
 
-        dd('test');
+        dd('test 2');
 
     }
 }
