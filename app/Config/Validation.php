@@ -33,9 +33,51 @@ class Validation extends BaseConfig
      *
      * @var array<string, string>
      */
-    public array $templates = [
-        'list'   => 'CodeIgniter\Validation\Views\list',
-        'single' => 'CodeIgniter\Validation\Views\single',
+    public array $users = [
+        'mail'    => [
+            'rules' => 'required|max_length[254]|valid_email|is_unique[pm_users.mail]',
+            'errors' => [
+                'is_unique' => 'l\'Email, ou le mot de passe ne correspond pas',
+                'required' => 'l\'Email est requis',
+                'valid_email' => 'Format de l\'email invalide',
+            ]
+        ],
+        'password' => [
+            'rules' => 'required|max_length[255]|min_length[10]',
+            'errors' => [
+                'required' => 'Le mot de passe est requis',
+                'min_length' => 'Le mot de passe doit contenir minimum 10 caractères'
+            ]
+        ],
+        'first_name' => [
+            'rules' => 'required',
+            'errors' => [
+                'required' => 'Le prénom est requis',
+            ]
+        ],
+        'last_name' => [
+            'rules' => 'required',
+            'errors' => [
+                'required' => 'Le nom est requis',
+            ]
+        ],
+    ];
+
+    public array $usersAuth = [
+        'mail'    => [
+            'rules' => 'required|max_length[254]|valid_email',
+            'errors' => [
+                'required' => 'l\'Email est requis',
+                'valid_email' => 'Format de l\'email invalide',
+            ]
+        ],
+        'password' => [
+            'rules' => 'required|max_length[255]|min_length[10]',
+            'errors' => [
+                'required' => 'Le mot de passe est requis',
+                'min_length' => 'Le mot de passe doit contenir minimum 10 caractères'
+            ]
+        ],
     ];
 
     // --------------------------------------------------------------------
