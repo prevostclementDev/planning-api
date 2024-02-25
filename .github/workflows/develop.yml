@@ -22,3 +22,33 @@ jobs:
 
       - name: Phpunit start
         run : composer test
+
+  deploy-on-vps:
+    name: SSH Upload
+    runs-on: ubuntu-latest
+    needs: phpunit-test
+    steps:
+      - name: install ssh keys
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+
+      - name: Repo file checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy to the server
+        run: |
+          echo "Starting deployment..."
+          
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} " echo 'start' "
+          
+          rsync -a -v --delete --exclude='.env' ${{ github.workspace }}/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.WORK_DIR_PREPROD }}
+          
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "chmod -R 777 ${{ secrets.WORK_DIR_PREPROD }} && cd ${{ secrets.WORK_DIR_PREPROD }} && composer update && php spark migrate"
+          
+          echo "Deployment completed."
+
+      - name: clean
+        run: rm -rf ~/.ssh
