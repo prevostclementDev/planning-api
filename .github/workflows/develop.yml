@@ -33,7 +33,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          sudo ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+          ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 
       - name: Repo file checkout
         uses: actions/checkout@v4
@@ -42,11 +42,11 @@ jobs:
         run: |
           echo "Starting deployment..."
           
-          sudo ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} " echo 'start' "
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} " echo 'start' "
           
-          sudo rsync -a -v --delete --exclude='.env' ${{ github.workspace }}/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.WORK_DIR_PREPROD }}
+          rsync -a -v --delete --exclude='.env' ${{ github.workspace }}/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.WORK_DIR_PREPROD }}
           
-          sudo ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "chmod -R 777 ${{ secrets.WORK_DIR_PREPROD }} && cd ${{ secrets.WORK_DIR_PREPROD }} && composer update && php spark migrate"
+          ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "chmod -R 777 ${{ secrets.WORK_DIR_PREPROD }} && cd ${{ secrets.WORK_DIR_PREPROD }} && composer update && php spark migrate"
           
           echo "Deployment completed."
 
