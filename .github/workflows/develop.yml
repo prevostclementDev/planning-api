@@ -3,7 +3,7 @@ on:
     branches:
       - develop
 
-name: Test application
+name: Deploy preproduction
 
 jobs:
   phpunit-test:
@@ -44,7 +44,7 @@ jobs:
           
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} " echo 'start' "
           
-          rsync -a -v --delete --exclude='.env' ${{ github.workspace }}/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.WORK_DIR_PREPROD }}
+          sudo rsync -a -v --delete --exclude='.env' ${{ github.workspace }}/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.WORK_DIR_PREPROD }}
           
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} "chmod -R 777 ${{ secrets.WORK_DIR_PREPROD }} && cd ${{ secrets.WORK_DIR_PREPROD }} && composer update && php spark migrate"
           
