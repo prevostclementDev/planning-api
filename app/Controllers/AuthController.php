@@ -7,6 +7,7 @@ use App\Libraries\ResponseFormat;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\API\ResponseTrait;
 
+// Global authentication of user
 class AuthController extends BaseController
 {
 
@@ -15,29 +16,26 @@ class AuthController extends BaseController
     private Authentification $authentification;
     private ResponseFormat $responseFormat;
 
+    // init
     public function __construct() {
         helper('cookie');
+        helper('database');
 
         $this->authentification = new Authentification();
         $this->responseFormat = new ResponseFormat();
     }
 
+    // AUTH USER
+    // RETURN : CSRF and JWT
     public function connection(): ResponseInterface
     {
-
-        // only post request
-        if ( ! $this->request->is('post') ) {
-            return $this->respond(
-                $this->responseFormat->setError(405)->getResponse(),
-                405
-            );
-        }
 
         // load valitation services
         $validation = \Config\Services::validation();
 
         // get post data by services validation
-        $data = $this->request->getPost( array_keys($validation->getRuleGroup('usersAuth')) );
+        $post = get_object_vars($this->request->getJSON());
+        $data = allowDataPicker( $post , array_keys($validation->getRuleGroup('usersAuth')) );
 
         // run validation
         if ( ! $validation->run($data, 'usersAuth') ) {
@@ -46,8 +44,9 @@ class AuthController extends BaseController
             ],400);
         }
 
-        // création du token ( et authentification )
+        // create token
         $token = $this->authentification->generateToken( $data['mail'], $data['password'] );
+
         if ( ! $token['status'] ) {
             return $this->respond([
                 $this->responseFormat->setError(403)->addData($token['message'])->getResponse(),
@@ -57,7 +56,7 @@ class AuthController extends BaseController
         // set cookie in response
         $this->response->setCookie($token['cookie']);
 
-        // finale response with csrf
+        // render response with csrf
         return $this->respond(
             $this->responseFormat->addData([
                 'csrf' => $token['csrf'],

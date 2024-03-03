@@ -29,27 +29,31 @@ class Auth implements FilterInterface
     public function before(RequestInterface $request, $arguments = null)
     {
 
-        $response = new ResponseFormat() ;
-
         helper('cookie');
+        $response = new ResponseFormat() ;
         $auth = new Authentification();
 
-        $csrf = $request->getHeaderLine('X-CSRF-TOKEN');
-        $token = get_cookie('access_token');
+        $csrf = $request->getHeaderLine('X-CSRF-TOKEN'); // get CSRF TOKEN
+        $token = get_cookie('access_token'); // get access token
 
+        // check user auth
         if ( ! empty($csrf) && ! is_null($token) && $auth->verifyToken($token,$csrf) ) {
 
+            // decode token
             $tokenData = $auth->decodeToken($token);
             $userModel = new UserModel();
+
+            // get current user
             $user = $userModel->find($tokenData['decode']['payload']->user_id);
 
+            // if user do not exist
             if ( is_null($user) ) {
                 return response()->setStatusCode(403)->setJSON( $response->setError(403,'L\'utilisateur n\'existe pas ou est supprimé')->getResponse() )->send();
             }
 
+            // set global current user
             define("CURRENT_USER", $user);
 
-            return;
         } else {
             return response()->setStatusCode(403)->setJSON( $response->setError(403)->getResponse() )->send();
         }

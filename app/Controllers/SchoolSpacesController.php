@@ -2,9 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Entities\Schoolspace;
 use App\Libraries\ResponseFormat;
-use App\Models\SchoolSpacesModel;
 use CodeIgniter\API\ResponseTrait;
 use CodeIgniter\HTTP\ResponseInterface;
 
@@ -21,11 +19,15 @@ class SchoolSpacesController extends BaseController
         $this->responseFormat = new ResponseFormat();
     }
 
+    // CREATE SCHOOLSPACE
     public function create(): ResponseInterface {
 
         // GET DATA FOR CREATE NEW SCHOOL SPACE
-        $dataUser = $this->request->getPost(['first_name','last_name','mail','password','profile_picture']);
-        $dataSchoolSpace = $this->request->getPost(['name','profile_picture']);
+
+        $post = get_object_vars($this->request->getJSON());
+
+        $dataUser = allowDataPicker($post,['first_name','last_name','mail','password','profile_picture']);
+        $dataSchoolSpace = allowDataPicker($post,['name','profile_picture']);
 
         // INSERT SCHOOL SPACE
         $saveSchoolSpace = insertNewData( 'SchoolSpacesModel' , $dataSchoolSpace );
@@ -52,6 +54,7 @@ class SchoolSpacesController extends BaseController
 
     }
 
+    // GET SCHOOLSPACE
     public function get() : ResponseInterface {
 
         $schoolspace = CURRENT_USER->getLinkSchoolSpaces();
@@ -65,9 +68,10 @@ class SchoolSpacesController extends BaseController
         );
     }
 
+    // UPDATE SCHOOLSPACE
     public function update() : ResponseInterface {
 
-        $post = $this->request->getRawInput();
+        $post = get_object_vars($this->request->getJSON());
 
         $data = allowDataPicker($post,['name','profile_picture']);
 
@@ -79,15 +83,10 @@ class SchoolSpacesController extends BaseController
         }
 
         $schoolspace = CURRENT_USER->getLinkSchoolSpaces();
-        $schoolspaceModel = new SchoolSpacesModel();
 
         $schoolspace->fill($data);
 
-        if ( $schoolspace->hasChanged() ) {
-            $schoolspaceModel->save($schoolspace);
-        } else {
-            $this->responseFormat->setCode(304)->addData('Données déjà à jour');
-        }
+        $this->responseFormat = updateData($schoolspace,'SchoolSpacesModel');
 
         return $this->respond(
             $this->responseFormat->getResponse(),
@@ -96,23 +95,23 @@ class SchoolSpacesController extends BaseController
 
     }
 
+    // DELETE SCHOOLSPACE
+    // TODO : Extend to all data
     public function delete() : ResponseInterface {
 
         $schoolspace = CURRENT_USER->getLinkSchoolSpaces();
 
-        if ( $schoolspace->deleteHim() ) {
+        if ( ! $schoolspace->deleteHim() ) {
 
-            return $this->respond(
-                $this->responseFormat->getResponse(),
-                200
-            );
+            $this->responseFormat->setError();
 
         }
 
         return $this->respond(
-            $this->responseFormat->setError()->getResponse(),
-            500
+            $this->responseFormat->getResponse(),
+            $this->responseFormat->getCode()
         );
+
 
 
     }

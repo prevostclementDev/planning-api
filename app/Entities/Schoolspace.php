@@ -15,8 +15,11 @@ class Schoolspace extends Entity
     protected $dates   = ['created_at', 'updated_at', 'deleted_at'];
     protected $casts   = [];
 
+    // delete schoolspace
     public function deleteHim(): bool
     {
+
+        $status = true;
 
         if ( isset($this->attributes['id']) ) {
 
@@ -27,14 +30,16 @@ class Schoolspace extends Entity
                 $userModel->where('id_school_space',$this->attributes['id'])->delete();
                 $schoolModel->where('id',$this->attributes['id'])->delete();
             } catch (DatabaseException $e) {
-                return false;
+                $status =  false;
             }
 
-            return true;
+        } else {
+
+            $status = false;
 
         }
 
-        return false;
+        return $status;
 
     }
 

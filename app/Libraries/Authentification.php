@@ -9,6 +9,7 @@ use CodeIgniter\Cookie\Cookie;
 class Authentification
 {
 
+    // generate JWT
     public function generateToken(string $mail, string $password): array
     {
         $user = $this->verifyUserId($mail,$password);
@@ -53,18 +54,27 @@ class Authentification
 
     }
 
+    // verify if token is valide
     public function verifyToken(string $token,string $csrf) : bool {
 
+        // decode
         $splitToken = $this->decodeToken($token);
+
+        // if decode error
         if ( ! $splitToken ) {
             return false;
         }
 
+        // regenerate signature for check
         $signature = $this->generateSignature($splitToken['header'],$splitToken['payload']);
 
+        // if signature equals
         $validSignature =  $signature === $splitToken['signature'];
+
+        // if csrf equals
         $validCSRF = isset($splitToken['decode']['payload']->csrf) && $splitToken['decode']['payload']->csrf === $csrf;
 
+        // if all is valid
         if ( $validSignature && $validCSRF ) {
             return true;
         }
@@ -73,6 +83,7 @@ class Authentification
 
     }
 
+    // decode token
     public function decodeToken(string $token) : false|array {
 
         if ( empty($token) ) {
@@ -93,6 +104,7 @@ class Authentification
 
     }
 
+    // verify user auth (email, password)
     private function verifyUserId(string $mail, string $password) : false|object {
 
         $userModel = new UserModel();
@@ -106,6 +118,7 @@ class Authentification
 
     }
 
+    // generate signature
     private function generateSignature($header,$payload): bool|string
     {
         $signature = hash_hmac('sha256', $header . "." . $payload, env('SECRET_KEY'), true);

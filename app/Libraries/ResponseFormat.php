@@ -42,8 +42,10 @@ class ResponseFormat
         429 => "Too Many Requests - Trop de requêtes",
     );
 
+    private ?string $set404CustomDetails = null;
 
-    public function __construct(array $data = null, int $code = null, string $status = null, string $message = null)
+    // default set creation
+    public function __construct(string $notFoundMessage = null,array $data = null, int $code = null, string $status = null, string $message = null)
     {
         if ( ! is_null($data) ) {
 
@@ -53,6 +55,8 @@ class ResponseFormat
 
         };
 
+        if ( ! is_null($notFoundMessage) ) $this->set404CustomDetails = $notFoundMessage;
+
         if ( ! is_null($code) ) $this->response['code'] = $code;
         if ( ! is_null($status) ) $this->response['status'] = $status;
         if ( ! is_null($message) ) $this->response['message'] = $message;
@@ -60,14 +64,17 @@ class ResponseFormat
         return $this;
     }
 
+    // return array response
     public function getResponse() : array {
         return $this->response;
     }
 
+    // get code response set
     public function getCode() : int {
         return $this->response['code'];
     }
 
+    // add data to response
     public function addData(mixed $data,string $key = null): static
     {
 
@@ -81,12 +88,11 @@ class ResponseFormat
         return $this;
     }
 
+    // set response in error
     public function setError(int $code = 500, mixed $details = null): static
     {
         $this->response['status'] = 'error';
-        $this->response['code'] = $code;
-
-        $this->setMessageByCode($code);
+        $this->setCode($code);
 
         if ( ! is_null($details) ) {
 
@@ -97,17 +103,25 @@ class ResponseFormat
         return $this;
     }
 
+    // set code
     public function setCode(int $code) : static {
         $this->response['code'] = $code;
         $this->setMessageByCode($code);
+
+        if ( ! is_null($this->set404CustomDetails) && $code === 404 ) {
+            $this->addData($this->set404CustomDetails,'details');
+        }
+
         return $this;
     }
 
+    // set global message
     public function setMessage(string $message) : static {
         $this->response['message'] = $message;
         return $this;
     }
 
+    // set message by code
     public function setMessageByCode(int $code = null) : static {
 
         if ( is_null($code) ) {

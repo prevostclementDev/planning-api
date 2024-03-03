@@ -3,7 +3,7 @@ on:
     branches:
       - develop
 
-name: Deploy preproduction
+name: 🚀 Deploy preproduction
 
 jobs:
   phpunit-test:

@@ -26,12 +26,12 @@ class Permissions implements FilterInterface
      */
     public function before(RequestInterface $request, $arguments = null)
     {
-
         if ( is_null( $arguments ) ) return;
 
+        // if user can do require permissions
         if ( CURRENT_USER->canDo($arguments) ) return;
 
-        $response = new ResponseFormat() ;
+        $response = new ResponseFormat();
         return response()->setStatusCode(403)->setJSON( $response->setError(403,"Vous n'avez pas les permissions suffisantes")->getResponse() )->send();
     }
 

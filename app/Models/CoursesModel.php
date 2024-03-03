@@ -2,26 +2,22 @@
 
 namespace App\Models;
 
-use App\Entities\User;
+use App\Entities\Course;
 use CodeIgniter\Model;
 
-class UserModel extends Model
+class CoursesModel extends Model
 {
-    protected $table            = 'pm_users';
+    protected $table            = 'pm_courses';
     protected $primaryKey       = 'id';
     protected $useAutoIncrement = true;
-    protected $returnType       = User::class;
+    protected $returnType       = Course::class;
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'first_name',
-        'last_name',
-        'mail',
-        'profile_picture',
-        'roles',
-        'password',
+        'name',
+        'hours_required',
         'id_school_space',
-        'last_connexion'
+        'color',
     ];
 
     protected bool $allowEmptyInserts = false;
@@ -34,16 +30,16 @@ class UserModel extends Model
     protected $deletedField  = 'deleted_at';
 
     // Validation
-    protected $validationRules      = 'users';
+    protected $validationRules      = 'courses';
     protected $validationMessages   = [];
     protected $skipValidation       = false;
     protected $cleanValidationRules = true;
 
     // Callbacks
     protected $allowCallbacks = true;
-    protected $beforeInsert   = ['hashPassorwd'];
+    protected $beforeInsert   = [];
     protected $afterInsert    = [];
-    protected $beforeUpdate   = ['hashPassorwd'];
+    protected $beforeUpdate   = [];
     protected $afterUpdate    = [];
     protected $beforeFind     = [];
     protected $afterFind      = [];
@@ -51,27 +47,14 @@ class UserModel extends Model
     protected $afterDelete    = [];
 
     // search with string on all field
-    public function searchUser(string $search): UserModel
+    public function searchCourses(string $search): CoursesModel
     {
         return $this
             ->where('deleted_at', null)
             ->groupStart()
-                ->like('first_name',$search)
-                ->orLike('last_name',$search)
-                ->orLike('mail',$search)
+            ->like('name',$search)
+            ->orLike('color',$search)
             ->groupEnd();
-    }
-
-    // hash password before update/insert
-    protected function hashPassorwd(array $data): array
-    {
-        if (! isset($data['data']['password'])) {
-            return $data;
-        }
-
-        $data['data']['password'] = password_hash($data['data']['password'], PASSWORD_DEFAULT);
-
-        return $data;
     }
 
 }

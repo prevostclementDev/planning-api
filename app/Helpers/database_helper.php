@@ -1,11 +1,13 @@
 <?php
 
+use CodeIgniter\Entity\Entity;
 use CodeIgniter\Model;
 use JetBrains\PhpStorm\ArrayShape;
 
 if ( ! function_exists('insertNewData') ) {
 
-    #[ArrayShape(['status' => "", 'errors' => "", 'id' => ""])]
+    // insert new data and handle all error
+    #[ArrayShape(['status' => "", 'errors' => "", 'id' => "", 'response' => \App\Libraries\ResponseFormat::class])]
     function insertNewData(String $model, array $data, array $onFailure = []): array
     {
         $status = true;
@@ -43,7 +45,7 @@ if ( ! function_exists('insertNewData') ) {
             $status = false;
             $errors = $model->errors();
 
-            $response->setError(400)->addData($errors);
+            $response->setError(400)->addData($errors,'errors');
         }
 
         return [ 'status' => $status, 'errors' => $errors, 'id' => $id, 'response' => $response ];
@@ -51,15 +53,42 @@ if ( ! function_exists('insertNewData') ) {
 
 }
 
+if ( ! function_exists('updateData') ) {
+
+    // update default function data
+    function updateData(Entity $entity,string $model) : \App\Libraries\ResponseFormat {
+        $model = model($model);
+        $responseFormat = new \App\Libraries\ResponseFormat();
+
+        if ( $entity->hasChanged() ) {
+            $model->save($entity);
+
+            if ( empty($model->errors()) ) {
+                $responseFormat->addData('Information mise à jour','details')->addData($entity,'object');
+            } else {
+                $responseFormat->setError(400)->addData($model->errors(),'errors')->addData($entity,'object');
+            }
+
+        } else {
+            $responseFormat->setCode(304);
+        }
+
+        return $responseFormat;
+
+    }
+
+}
+
 if ( ! function_exists('allowDataPicker') ) {
 
-    function allowDataPicker (array $post, array $allowData) : array {
+    // get all field require available in $post
+        function allowDataPicker (array $post, array $allowData) : array {
 
         $render = array();
 
         foreach ( $post as $key => $value ) {
 
-            if ( isset( $allowData[$key] ) ) {
+            if ( in_array($key, $allowData) ) {
 
                 $render[$key] = $value;
 
@@ -75,6 +104,7 @@ if ( ! function_exists('allowDataPicker') ) {
 
 if ( ! function_exists('createPager') ) {
 
+    // with model return standard array for pagination
     #[ArrayShape(['current_page' => "int", 'page_count' => "int", 'per_page' => "int", 'total' => "int", 'next_uri' => "\CodeIgniter\HTTP\URI|null|string"])]
     function createPager(Model $model): array
     {

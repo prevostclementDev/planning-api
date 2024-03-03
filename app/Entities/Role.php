@@ -10,6 +10,7 @@ class Role extends Entity
     protected $dates   = ['created_at', 'updated_at', 'deleted_at'];
     protected $casts   = [];
 
+    // return all permissions of a role
     public function getPermissions() : array {
 
         $db      = \Config\Database::connect();
