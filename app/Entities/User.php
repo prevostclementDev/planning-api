@@ -3,7 +3,6 @@
 namespace App\Entities;
 
 use App\Libraries\ResponseFormat;
-use App\Models\CoursesModel;
 use App\Models\RolesModel;
 use App\Models\SchoolSpacesModel;
 use App\Models\UserSkillsModel;
@@ -24,10 +23,12 @@ class User extends Entity
         'roles' => null,
         'password' => null,
         'id_school_space' => null,
-        'last_connexion' => null
+        'last_connection' => null
     ];
     protected $dates   = ['created_at', 'updated_at', 'deleted_at'];
     protected $casts   = [];
+
+    public static string $select = 'pm_users.id, pm_users.first_name, pm_users.last_name, pm_users.mail, pm_users.profile_picture, pm_users.roles, pm_users.last_connection';
 
     // ###############################################################################################
     //                                          ROLES / PERMISSIONS
@@ -49,7 +50,7 @@ class User extends Entity
         $nbPermissions = count($permissions);
 
         foreach ( $currentUserPermissions as $permission ) {
-            if ( in_array($permission['permission'], $permissions) ) $nbPermissions--;
+            if ( in_array($permission, $permissions) ) $nbPermissions--;
         }
 
         if ( $nbPermissions === 0 ) return true;
@@ -154,6 +155,46 @@ class User extends Entity
 
     }
 
+    // ###############################################################################################
+    //                                   IF USER IS AVAILABLE
+    // ###############################################################################################
+    #[ArrayShape(['isAvailable' => "bool", 'slots' => "array"])]
+    public function userIsAvailable(string $start_hour, string $end_hour, string $daydate, ?array $excludeSlot = null ): array
+    {
+        $isAvailable = false;
+
+        $planningSlotModel = $this->queryOnSchoolSpace('PlanningsSlotsModel','pm_plannings.id_school_space');
+        $planningSlotModel
+            ->join('pm_plannings','pm_plannings.id = pm_planning_slots.id_planning')
+            ->where('pm_planning_slots.id_teacher',$this->attributes['id'])
+            ->where('pm_planning_slots.daydate',$daydate)
+            ->groupStart()
+                ->groupStart()
+                    ->where('pm_planning_slots.start_hour <=',$start_hour)
+                    ->where('pm_planning_slots.end_hour >',$start_hour)
+                ->groupEnd()
+                ->orGroupStart()
+                    ->where('pm_planning_slots.start_hour <',$end_hour)
+                    ->where('pm_planning_slots.end_hour >=',$end_hour)
+                ->groupEnd()
+                ->orGroupStart()
+                    ->where('pm_planning_slots.start_hour >',$start_hour)
+                    ->where('pm_planning_slots.end_hour <',$end_hour)
+                ->groupEnd()
+            ->groupEnd();
+
+        if ( ! is_null($excludeSlot) ) {
+            $planningSlotModel->whereNotIn('pm_planning_slots.id',$excludeSlot);
+        }
+
+        $slotsForTeacher = $planningSlotModel->findAll();
+
+        if ( empty($slotsForTeacher) ) {
+            $isAvailable = true;
+        }
+
+        return array('isAvailable' => $isAvailable, 'slots' => $slotsForTeacher);
+    }
 
     // ###############################################################################################
     //                                               SKILLS

@@ -50,6 +50,7 @@ class Authentification
             'jwt' => $jwt,
             'csrf' => $csrf,
             'cookie' => $cookie,
+            'user' => $user
         );
 
     }
@@ -108,11 +109,16 @@ class Authentification
     private function verifyUserId(string $mail, string $password) : false|object {
 
         $userModel = new UserModel();
-        $user = $userModel->where('mail',$mail)->first();
+        $user = $userModel
+            ->select('id,first_name,last_name,mail,roles,password')
+            ->where('mail',$mail)
+            ->first();
 
         if (is_null($user)) return false;
 
         if ( !password_verify( $password, $user->password )) return false;
+
+        unset($user->password);
 
         return $user;
 

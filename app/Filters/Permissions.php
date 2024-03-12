@@ -32,7 +32,8 @@ class Permissions implements FilterInterface
         if ( CURRENT_USER->canDo($arguments) ) return;
 
         $response = new ResponseFormat();
-        return response()->setStatusCode(403)->setJSON( $response->setError(403,"Vous n'avez pas les permissions suffisantes")->getResponse() )->send();
+        ResponseFormat::setAllDefaultHeader();
+        return response()->setStatusCode(403)->setJSON( $response->setError(403,"Vous n'avez pas les permissions suffisantes",'permissions')->getResponse() )->send();
     }
 
     /**
@@ -47,8 +48,5 @@ class Permissions implements FilterInterface
      *
      * @return ResponseInterface|void
      */
-    public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
-    {
-        //
-    }
+    public function after(RequestInterface $request, ResponseInterface $response, $arguments = null) {}
 }

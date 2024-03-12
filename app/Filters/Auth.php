@@ -48,14 +48,20 @@ class Auth implements FilterInterface
 
             // if user do not exist
             if ( is_null($user) ) {
-                return response()->setStatusCode(403)->setJSON( $response->setError(403,'L\'utilisateur n\'existe pas ou est supprimé')->getResponse() )->send();
+                ResponseFormat::setAllDefaultHeader();
+                return response()->setStatusCode(403)->setJSON(
+                    $response
+                        ->setError(403,'L\'utilisateur n\'existe pas ou est supprimé','auth')
+                        ->getResponse()
+                )->send();
             }
 
             // set global current user
             define("CURRENT_USER", $user);
 
         } else {
-            return response()->setStatusCode(403)->setJSON( $response->setError(403)->getResponse() )->send();
+            ResponseFormat::setAllDefaultHeader();
+            return response()->setStatusCode(403)->setJSON( $response->setError(403, null,'auth')->getResponse() )->send();
         }
 
     }
@@ -72,8 +78,5 @@ class Auth implements FilterInterface
      *
      * @return ResponseInterface|void
      */
-    public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
-    {
-        //
-    }
+    public function after(RequestInterface $request, ResponseInterface $response, $arguments = null) {}
 }

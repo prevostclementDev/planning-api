@@ -7,7 +7,7 @@ use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\API\ResponseTrait;
 
 // Override error
-class ErrorsController extends BaseController
+class overrideController extends BaseController
 {
 
     use ResponseTrait;
@@ -22,12 +22,18 @@ class ErrorsController extends BaseController
     // return 404 global format
     public function override404(): ResponseInterface
     {
+        $this->responseFormat::setAllDefaultHeader();
         return $this->respond(
             $this->responseFormat
                 ->setError(404,'La ressource est introuvable.')
                 ->getResponse(),
             404
         );
+    }
+
+    public function overrideOption() : ResponseInterface {
+        $this->response->setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+        return $this->respond( $this->responseFormat->getResponse() );
     }
 
 }

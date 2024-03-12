@@ -239,6 +239,43 @@ class Validation extends BaseConfig
         ],
     ];
 
+    public array $planningSlots = [
+        'teacher_status' => [
+            'rules' => 'required|in_list[valid,invalid,waiting,missing]',
+            'errors' => [
+                'in_list' => 'la valeur doit être valid ou invalid ou waiting ou missing',
+                'required' => 'le status du professeur est requis',
+            ]
+        ],
+        'name'    => [
+            'rules' => 'max_length[254]',
+            'errors' => [
+                'max_length' => 'Longueur max 254 caractères',
+            ]
+        ],
+        'start_hour'    => [
+            'rules' => 'required|regex_match[/([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]/]',
+            'errors' => [
+                'regex_match' => 'le format requis doit répondre au format suivant [0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]',
+                'required' => 'l\'heure de début est requis',
+            ]
+        ],
+        'end_hour'    => [
+            'rules' => 'required|regex_match[/([0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]/]',
+            'errors' => [
+                'regex_match' => 'le format requis doit répondre au format suivant [0-1]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]',
+                'required' => 'l\'heure de fin est requis',
+            ]
+        ],
+        'daydate' => [
+            'rules' => 'required|valid_date',
+            'errors' => [
+                'required' => 'La date est obligatoire.',
+                'valid_date' => 'Le format de la date est invalide.'
+            ]
+        ],
+    ];
+
     // --------------------------------------------------------------------
     // Rules
     // --------------------------------------------------------------------

@@ -5,13 +5,18 @@ namespace App\Libraries;
 class ResponseFormat
 {
 
+    public static bool $headerStackAsSet = false;
+
+    // response
     private array $response = [
+        'statusBool' => true,
         'status' => 'success',
         'code' => '200',
         'message' => 'OK - Requête réussie',
         'data' => []
     ];
 
+    // data of code message
     private array $codeMessage = array(
         // Codes de succès
         200 => "OK - Requête réussie",
@@ -42,6 +47,7 @@ class ResponseFormat
         429 => "Too Many Requests - Trop de requêtes",
     );
 
+    // 404 custom message
     private ?string $set404CustomDetails = null;
 
     // default set creation
@@ -64,6 +70,10 @@ class ResponseFormat
         return $this;
     }
 
+    // *******************************
+    //             GETTER
+    // *******************************
+
     // return array response
     public function getResponse() : array {
         return $this->response;
@@ -73,6 +83,10 @@ class ResponseFormat
     public function getCode() : int {
         return $this->response['code'];
     }
+
+    // *******************************
+    //             SETTER
+    // *******************************
 
     // add data to response
     public function addData(mixed $data,string $key = null): static
@@ -89,15 +103,18 @@ class ResponseFormat
     }
 
     // set response in error
-    public function setError(int $code = 500, mixed $details = null): static
+    public function setError(int $code = 500, mixed $details = null,?string $type = null): static
     {
         $this->response['status'] = 'error';
+        $this->response['statusBool'] = false;
         $this->setCode($code);
 
         if ( ! is_null($details) ) {
-
             $this->addData($details,'details');
+        }
 
+        if ( ! is_null($type) ) {
+            $this->addData($type,'TypeError');
         }
 
         return $this;
@@ -132,6 +149,56 @@ class ResponseFormat
 
         return $this;
 
+    }
+
+    // ***********************************************
+    //                  HEADER OPTIONS
+    // ***********************************************
+    // Global set header
+    public static function setHeader(string $key, string $value): void {
+        header("{$key}: {$value}");
+    }
+
+    // set allow method
+    public static function setAllowMethodHeader(string $method = 'GET, POST, OPTIONS, PUT, DELETE') : void {
+        self::setHeader('Access-Control-Allow-Methods',$method);
+    }
+
+    // set allow control header
+    public static function setAllowControlHeader(string $allowControl = 'Content-Type, X-CSRF-TOKEN', string $allowCredentials = "true") : void {
+        self::setHeader('Access-Control-Allow-Headers',$allowControl);
+        self::setHeader('Access-Control-Allow-Credentials',$allowCredentials);
+    }
+
+    // set allow origin
+    public static function setAllowOriginHeader(string $urlAllow, bool $auto = false) : void {
+
+        if ( $auto ) {
+
+            switch (base_url()) {
+
+                case 'http://localhost/site/gestionnaire-planning-api/public/':
+                    $urlAllow = 'http://localhost:3000';
+                    break;
+                case 'https://api.doriane.app/':
+                    $urlAllow = 'https://doriane.app';
+                    break;
+                case 'https://preprod.api.doriane.app/':
+                    $urlAllow = 'https://preprod.doriane.app';
+                    break;
+            }
+
+        }
+
+        self::setHeader('Access-Control-Allow-Origin',$urlAllow);
+    }
+
+    // set all header auto
+    public static function setAllDefaultHeader() : void {
+        self::setAllowOriginHeader('',true);
+        self::setAllowControlHeader();
+        self::setAllowMethodHeader();
+        self::$headerStackAsSet = true;
     }
 
 }

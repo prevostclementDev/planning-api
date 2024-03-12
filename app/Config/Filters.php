@@ -2,8 +2,7 @@
 
 namespace Config;
 
-use App\Controllers\SchoolSpaces;
-use App\Filters\Auth;
+use App\Filters\CORS;
 use App\Filters\Permissions;
 use CodeIgniter\Config\BaseConfig;
 use CodeIgniter\Filters\CSRF;
@@ -28,6 +27,7 @@ class Filters extends BaseConfig
         'invalidchars'  => InvalidChars::class,
         'secureheaders' => SecureHeaders::class,
         'permissions' => Permissions::class,
+        'CORS' => CORS::class
     ];
 
     /**
@@ -37,15 +37,9 @@ class Filters extends BaseConfig
      * @var array<string, array<string, array<string, string>>>|array<string, list<string>>
      */
     public array $globals = [
-        'before' => [
-            // 'honeypot',
-            // 'csrf',
-            // 'invalidchars',
-        ],
+        'before' => [],
         'after' => [
-            'toolbar',
-            // 'honeypot',
-            // 'secureheaders',
+            'CORS'
         ],
     ];
 

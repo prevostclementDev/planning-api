@@ -137,5 +137,26 @@ class CoursesController extends BaseController
 
     }
 
+    // get teacher for course
+    public function getTeacher(int $id) : ResponseInterface {
+
+        $coursesModel = CURRENT_USER->queryOnSchoolSpace('CoursesModel');
+        $courses = $coursesModel->find($id);
+
+        if ( is_null($courses) ) {
+            return $this->respond(
+                $this->responseFormat->setError(404)->getResponse(),
+                404
+            );
+        }
+
+        $teachers = $courses->getTeacher();
+
+        return $this->respond(
+            $this->responseFormat->addData($teachers,'teachers')->getResponse()
+        );
+
+    }
+
 }
 

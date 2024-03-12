@@ -102,6 +102,12 @@ $routes->group('schoolspaces', static function ($routes) {
            'permissions:manage_courses'
        ] ]);
 
+       // get all teacher with course skill
+       $routes->get('(:num)/teachers','CoursesController::getTeacher/$1',[ 'filter' => [
+           Auth::class,
+           'permissions:manage_courses,manage_users_skills'
+       ]]);
+
     });
 
     // #########################################################
@@ -214,9 +220,39 @@ $routes->group('schoolspaces', static function ($routes) {
             ],
         ]);
 
+        // planning slot
+        $routes->get('(:num)/slots','PlanningsSlotsController::get/$1',[ 'filter' => [ Auth::class ]]);
+        $routes->post('(:num)/slots','PlanningsSlotsController::create/$1',[
+            'filter' => [
+                Auth::class,
+                'permissions:manage_slots'
+            ],
+        ]);
+        $routes->put('(:num)/slots/(:num)','PlanningsSlotsController::update/$1/$2',[ 'filter' => [ Auth::class ]]);
+        $routes->delete('(:num)/slots/(:num)','PlanningsSlotsController::delete/$1/$2',[
+            'filter' => [
+                Auth::class,
+                'permissions:manage_slots'
+            ],
+        ]);
+
+        // planning programs completed
+        $routes->get('(:num)/programs','PlanningsController::getPrograms/$1', [ 'filter' => [
+            Auth::class,
+            'permissions:manage_plannings'
+        ]]);
+
+
     });
 
 });
 
+// #########################################################
+//                        Override
+// #########################################################
+
 // OVERRIDE 404 ERROR
-$routes->set404Override('App\Controllers\ErrorsController::override404');
+$routes->set404Override('App\Controllers\overrideController::override404');
+
+// OVERRIDE OPTION FOR ALL ROUTE
+$routes->options('(:any)', 'overrideController::overrideOption');

@@ -21,7 +21,7 @@ class UserModel extends Model
         'roles',
         'password',
         'id_school_space',
-        'last_connexion'
+        'last_connection'
     ];
 
     protected bool $allowEmptyInserts = false;

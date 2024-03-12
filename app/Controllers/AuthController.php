@@ -39,18 +39,18 @@ class AuthController extends BaseController
 
         // run validation
         if ( ! $validation->run($data, 'usersAuth') ) {
-            return $this->respond([
-                $this->responseFormat->setError(400)->addData($validation->getErrors())->getResponse(),
-            ],400);
+            return $this->respond(
+                $this->responseFormat->setError(400)->addData($validation->getErrors())->getResponse()
+            ,400);
         }
 
         // create token
         $token = $this->authentification->generateToken( $data['mail'], $data['password'] );
 
         if ( ! $token['status'] ) {
-            return $this->respond([
-                $this->responseFormat->setError(403)->addData($token['message'])->getResponse(),
-            ],403);
+            return $this->respond(
+                $this->responseFormat->setError(403)->addData($token['message'])->getResponse()
+            ,403);
         }
 
         // set cookie in response
@@ -58,9 +58,11 @@ class AuthController extends BaseController
 
         // render response with csrf
         return $this->respond(
-            $this->responseFormat->addData([
-                'csrf' => $token['csrf'],
-            ])->getResponse(),
+            $this->responseFormat
+                ->addData($token['csrf'],'csrf')
+                ->addData($token['user'],'user')
+                ->addData($token['user']->getRoles()->getPermissions(),'permissions')
+                ->getResponse(),
             200
         );
 

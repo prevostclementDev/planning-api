@@ -22,7 +22,15 @@ class Role extends Entity
                 ->where('pm_roles.id',$this->attributes['id'])
                 ->get();
 
-        return $query->getResultArray();
+        $resultQuery = $query->getResultArray();
+
+        $permissions = [];
+
+        foreach ( $resultQuery as $permission ) {
+            $permissions[] = $permission['permission'];
+        }
+
+        return $permissions;
 
     }
 

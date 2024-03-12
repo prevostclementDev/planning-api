@@ -181,14 +181,9 @@ class UsersController extends BaseController
         if ( CURRENT_USER->id == $id ) {
 
             $permissionsResult = CURRENT_USER->getRoles()->getPermissions();
-            $permissions = [];
-
-            foreach ( $permissionsResult as $permission ) {
-                $permissions[] = $permission['permission'];
-            }
 
             return $this->respond(
-                $this->responseFormat->addData($permissions,'permissions')->getResponse(),
+                $this->responseFormat->addData($permissionsResult,'permissions')->getResponse(),
             );
 
         }
