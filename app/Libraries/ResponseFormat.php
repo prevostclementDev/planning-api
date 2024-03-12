@@ -188,13 +188,7 @@ class ResponseFormat
                     break;
             }
 
-            var_dump($urlAllow,'test');
-            die();
-
         }
-
-        var_dump($urlAllow);
-        die();
 
         self::setHeader('Access-Control-Allow-Origin',$urlAllow);
     }
