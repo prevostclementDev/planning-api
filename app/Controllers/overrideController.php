@@ -22,17 +22,26 @@ class overrideController extends BaseController
     // return 404 global format
     public function override404(): ResponseInterface
     {
-        $this->responseFormat::setAllDefaultHeader();
+
+        if ( ! responseFormat::$headerStackAsSet ) {
+            responseFormat::setAllDefaultHeader();
+        }
+
         return $this->respond(
             $this->responseFormat
                 ->setError(404,'La ressource est introuvable.')
+                ->addData(base_url(),'base_url')
                 ->getResponse(),
             404
         );
     }
 
     public function overrideOption() : ResponseInterface {
-        $this->response->setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+
+        if ( ! responseFormat::$headerStackAsSet ) {
+            responseFormat::setAllDefaultHeader();
+        }
+
         return $this->respond( $this->responseFormat->getResponse() );
     }
 
