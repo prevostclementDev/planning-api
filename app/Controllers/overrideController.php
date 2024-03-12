@@ -30,7 +30,6 @@ class overrideController extends BaseController
         return $this->respond(
             $this->responseFormat
                 ->setError(404,'La ressource est introuvable.')
-                ->addData(base_url(),'base_url')
                 ->getResponse(),
             404
         );
