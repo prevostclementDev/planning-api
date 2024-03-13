@@ -4,6 +4,7 @@ namespace App\Controllers\Plannings;
 
 use App\Controllers\BaseController;
 use App\Libraries\ResponseFormat;
+use App\Models\ProgramsModel;
 use CodeIgniter\API\ResponseTrait;
 use CodeIgniter\Database\Exceptions\DatabaseException;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -253,9 +254,15 @@ class PlanningsController extends BaseController
 
             unset($planning->id_school_space);
 
+            $programsModel = new ProgramsModel();
+            $program = $programsModel->find($planning->id_programs);
+
+            unset($program->id_school_space);
+
             return $this->respond(
                 $this->responseFormat
                     ->addData($planning,'planning')
+                    ->addData($program,'program')
                     ->addData($slotsPlanning,'slots')
                     ->getResponse()
             );

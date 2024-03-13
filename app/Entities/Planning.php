@@ -32,12 +32,15 @@ class Planning extends Entity
         if ( isset($data['id_course']) ) {
 
             $courseModel = $user->queryOnSchoolSpace('CoursesModel');
-            $course = $courseModel->find($data['id_course']);
+            $course = $courseModel
+                ->join('pm_schools_programs_cours', 'pm_schools_programs_cours.id_programs = '.$this->attributes['id_programs'])
+                ->where('id_course',$data['id_course'])
+                ->find();
 
             // if course not and exist and name to
-            if ( is_null($course) && ! isset($data['name']) ) {
-                return $responseFormat->setError(400,'Le cours à associer est introuvable.');
-            } else if ( ! is_null($course) ) {
+            if ( empty($course) && ! isset($data['name']) ) {
+                return $responseFormat->setError(400,'Le cours à associer est introuvable. Ou n\'est pas dans le programme du planning');
+            } else if ( ! empty($course) ) {
                 $courseIsDefined = true;
             }
 
@@ -122,12 +125,15 @@ class Planning extends Entity
         if ( isset($data['id_course']) ) {
 
             $courseModel = $user->queryOnSchoolSpace('CoursesModel');
-            $course = $courseModel->find($data['id_course']);
+            $course = $courseModel
+                ->join('pm_schools_programs_cours', 'pm_schools_programs_cours.id_programs = '.$this->attributes['id_programs'])
+                ->where('id_course',$data['id_course'])
+                ->find();
 
             // if course not and exist and name to
-            if ( is_null($course) && ! isset($data['name']) ) {
+            if ( empty($course) && ! isset($data['name']) ) {
                 return $responseFormat->setError(400,'Le cours à associer est introuvable.');
-            } else if ( ! is_null($course) ) {
+            } else if ( ! empty($course) ) {
                 $courseIsDefined = true;
             }
 
@@ -272,8 +278,36 @@ class Planning extends Entity
     public function getPrograms(): ResponseFormat {
 
         $responseFormat = new ResponseFormat();
+
+        $db = db_connect();
+
+        $query = $db->query("
+            SELECT
+            pm_courses.name as CourseName,
+            pm_courses.id as CourseId,
+            pm_courses.hours_required as hoursRequired,
+            pm_courses.color as CourseColor,
+            IFNULL ( SEC_TO_TIME(SUM(TIME_TO_SEC(pm_planning_slots.total_time))), '00:00:00' ) as totalTimePlaced ,
+            IFNULL ( CONCAT( ROUND(SUM(TIME_TO_SEC(pm_planning_slots.total_time)) * 100 / TIME_TO_SEC(pm_courses.hours_required)), '%' ), '0%' ) as pourcentHourPlace
+            
+            FROM pm_plannings
+            
+            INNER JOIN pm_schools_programs_cours ON pm_plannings.id_programs = pm_schools_programs_cours.id_programs
+            INNER JOIN pm_courses ON pm_courses.id = pm_schools_programs_cours.id_course
+            LEFT JOIN pm_planning_slots ON pm_courses.id = pm_planning_slots.id_course
+            
+            WHERE pm_plannings.id = {$this->attributes['id']}
+            
+            GROUP BY pm_courses.id
+        ");
+
+        $result = $query->getResultArray();
+
+        $responseFormat->addData($result,'programs');
+
         return $responseFormat;
 
     }
 
 }
+
